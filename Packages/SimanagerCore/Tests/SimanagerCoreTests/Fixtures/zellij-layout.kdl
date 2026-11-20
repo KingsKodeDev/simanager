@@ -1,0 +1,52 @@
+layout {
+    cwd "/Users/dev"
+    tab name="acme" hide_floating_panes=true {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane command="/Users/dev/.local/bin/claude" cwd="projects/acme-app" {
+            args "--resume" "0a0a0a0a-1111-4111-8111-000000000001" "--model" "claude-fable-5-2"
+            start_suspended true
+        }
+    }
+    tab name="feedback" hide_floating_panes=true {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane command="/Users/dev/.local/bin/claude" cwd="projects/acme-app" {
+            args "--resume" "0b0b0b0b-2222-4222-8222-000000000002" "--model" "claude-fable-5-2"
+            start_suspended true
+        }
+    }
+    tab name="programs" hide_floating_panes=true {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane command="/Users/dev/.local/bin/claude" cwd="w/acme" {
+            args "--model" "claude-fable-5-2"
+            start_suspended true
+        }
+    }
+    tab name="Tab #5" hide_floating_panes=true {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane
+    }
+    new_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane
+    }
+    swap_tiled_layout name="vertical" {
+        tab max_panes=5 {
+            pane split_direction="vertical" {
+                pane
+                pane command="/Users/dev/.local/bin/claude" {
+                    args "--resume" "ffffffff-0000-0000-0000-00000000000f"
+                }
+            }
+        }
+    }
+}

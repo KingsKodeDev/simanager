@@ -1,0 +1,16 @@
+14986     1 ??       01-23:00:37 launchd_sim /Users/dev/Library/Developer/CoreSimulator/Devices/AAAAAAAA-1111-4111-8111-00000000000A/data/var/run/launchd_bootstrap.plist
+15001 14986 ??       01-23:00:30 /Library/Developer/CoreSimulator/Volumes/iOS_24A1/RuntimeRoot/System/Library/CoreServices/SpringBoard.app/SpringBoard
+15002 15001 ??       01-22:59:00 /Users/dev/Library/Developer/CoreSimulator/Devices/AAAAAAAA-1111-4111-8111-00000000000A/data/Containers/Bundle/Application/X/ACME.app/ACME
+18532     1 ??       01-21:18:23 launchd_sim /Users/dev/Library/Developer/CoreSimulator/Devices/BBBBBBBB-2222-4222-8222-00000000000B/data/var/run/launchd_bootstrap.plist
+18540 18532 ??       01-21:18:00 /Library/Developer/CoreSimulator/Volumes/iOS_23E244/RuntimeRoot/usr/libexec/backboardd
+ 7718     1 ??          20:05:19 /Applications/Xcode.app/Contents/SharedFrameworks/DVTInstrumentsFoundation.framework/Resources/DTServiceHub --device BBBBBBBB-2222-4222-8222-00000000000B
+  600     1 ??       02-00:00:00 /Applications/Claude.app/Contents/MacOS/Claude
+77208   600 ??          05:00:00 /Applications/Claude.app/Contents/Resources/claude-code/claude
+ 2000     1 ttys003  02-00:00:00 -zsh
+25816  2000 ttys003  01-00:00:00 /Users/dev/.local/bin/claude --resume 0a0a0a0a-1111-4111-8111-000000000001 --model claude-fable-5-2
+25900 25816 ??             10:00 /bin/zsh -c ./scripts/test_env.sh
+25901 25900 ??             09:58 xcodebuild test -destination id=AAAAAAAA-1111-4111-8111-00000000000A
+ 3000     1 ttys007     10:00:00 -zsh
+ 3100     1 ttys008     10:00:00 -zsh
+ 4242     1 ??             00:30 /Users/dev/Applications/Simanager.app/Contents/MacOS/Simanager
+ 4243  4242 ??             00:01 /usr/bin/xcrun simctl shutdown BBBBBBBB-2222-4222-8222-00000000000B

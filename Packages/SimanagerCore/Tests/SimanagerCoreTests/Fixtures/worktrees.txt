@@ -1,0 +1,16 @@
+worktree /Users/dev/projects/acme-app
+HEAD 1111111111111111111111111111111111111111
+branch refs/heads/acme-764-feedback
+
+worktree /Users/dev/w/acme
+HEAD 2222222222222222222222222222222222222222
+branch refs/heads/acme-700-x
+
+worktree /Users/dev/w/acme-triage
+HEAD 3333333333333333333333333333333333333333
+detached
+
+worktree /Users/dev/w/acme-855
+HEAD 4444444444444444444444444444444444444444
+branch refs/heads/acme-865-thing
+

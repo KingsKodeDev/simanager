@@ -1,0 +1,242 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		510000000000000000000010 /* SimanagerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 510000000000000000000011 /* SimanagerCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		510000000000000000000001 /* Simanager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Simanager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		510000000000000000000002 /* Simanager */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Simanager;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		510000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				510000000000000000000010 /* SimanagerCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		510000000000000000000004 = {
+			isa = PBXGroup;
+			children = (
+				510000000000000000000002 /* Simanager */,
+				510000000000000000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		510000000000000000000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				510000000000000000000001 /* Simanager.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		510000000000000000000006 /* Simanager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51000000000000000000000B /* Build configuration list for PBXNativeTarget "Simanager" */;
+			buildPhases = (
+				510000000000000000000007 /* Sources */,
+				510000000000000000000003 /* Frameworks */,
+				510000000000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				510000000000000000000002 /* Simanager */,
+			);
+			name = Simanager;
+			packageProductDependencies = (
+				510000000000000000000011 /* SimanagerCore */,
+			);
+			productName = Simanager;
+			productReference = 510000000000000000000001 /* Simanager.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		510000000000000000000009 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2720;
+				LastUpgradeCheck = 2720;
+			};
+			buildConfigurationList = 51000000000000000000000A /* Build configuration list for PBXProject "Simanager" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 510000000000000000000004;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				510000000000000000000012 /* XCLocalSwiftPackageReference "Packages/SimanagerCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 510000000000000000000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				510000000000000000000006 /* Simanager */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		510000000000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		510000000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		51000000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		51000000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		51000000000000000000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5AJ5NZESYF;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Simanager reads git worktrees here to show which checkout each simulator belongs to.";
+				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "Simanager reads git worktrees here to show which checkout each simulator belongs to.";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "Simanager reads git worktrees here to show which checkout each simulator belongs to.";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.simanager.Simanager;
+				PRODUCT_NAME = Simanager;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		51000000000000000000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5AJ5NZESYF;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Simanager reads git worktrees here to show which checkout each simulator belongs to.";
+				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "Simanager reads git worktrees here to show which checkout each simulator belongs to.";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "Simanager reads git worktrees here to show which checkout each simulator belongs to.";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.simanager.Simanager;
+				PRODUCT_NAME = Simanager;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		51000000000000000000000A /* Build configuration list for PBXProject "Simanager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51000000000000000000000C /* Debug */,
+				51000000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51000000000000000000000B /* Build configuration list for PBXNativeTarget "Simanager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51000000000000000000000E /* Debug */,
+				51000000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		510000000000000000000012 /* XCLocalSwiftPackageReference "Packages/SimanagerCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SimanagerCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		510000000000000000000011 /* SimanagerCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SimanagerCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 510000000000000000000009 /* Project object */;
+}

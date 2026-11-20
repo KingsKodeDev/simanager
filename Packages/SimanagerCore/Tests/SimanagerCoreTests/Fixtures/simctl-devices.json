@@ -1,0 +1,50 @@
+{
+  "devices" : {
+    "com.apple.CoreSimulator.SimRuntime.iOS-27-0" : [
+      {
+        "dataPath" : "\/Users\/tp\/Library\/Developer\/CoreSimulator\/Devices\/AAAAAAAA-1111-4111-8111-00000000000A\/data",
+        "dataPathSize" : 1633755136,
+        "logPath" : "\/Users\/tp\/Library\/Logs\/CoreSimulator\/AAAAAAAA-1111-4111-8111-00000000000A",
+        "udid" : "AAAAAAAA-1111-4111-8111-00000000000A",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Booted",
+        "name" : "ACME main iOS 27 - iPhone 17 Pro"
+      }
+,
+      {
+        "dataPath" : "\/Users\/tp\/Library\/Developer\/CoreSimulator\/Devices\/CCCCCCCC-3333-4333-8333-00000000000C\/data",
+        "dataPathSize" : 1633755136,
+        "logPath" : "\/Users\/tp\/Library\/Logs\/CoreSimulator\/CCCCCCCC-3333-4333-8333-00000000000C",
+        "udid" : "CCCCCCCC-3333-4333-8333-00000000000C",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Booted",
+        "name" : "ACME acme-855 iOS 27 - iPhone 17 Pro"
+      }
+,
+      {
+        "dataPath" : "\/Users\/tp\/Library\/Developer\/CoreSimulator\/Devices\/11111111-2222-3333-4444-555555555555\/data",
+        "dataPathSize" : 1633755136,
+        "logPath" : "\/Users\/tp\/Library\/Logs\/CoreSimulator\/11111111-2222-3333-4444-555555555555",
+        "udid" : "11111111-2222-3333-4444-555555555555",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17",
+        "state" : "Shutdown",
+        "name" : "Scratch - iPhone 17"
+      }
+    ],
+    "com.apple.CoreSimulator.SimRuntime.iOS-26-4" : [
+      {
+        "dataPath" : "\/Users\/tp\/Library\/Developer\/CoreSimulator\/Devices\/BBBBBBBB-2222-4222-8222-00000000000B\/data",
+        "dataPathSize" : 1633755136,
+        "logPath" : "\/Users\/tp\/Library\/Logs\/CoreSimulator\/BBBBBBBB-2222-4222-8222-00000000000B",
+        "udid" : "BBBBBBBB-2222-4222-8222-00000000000B",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Booted",
+        "name" : "ACME acme-triage shard 2 - iPhone 17 Pro"
+      }
+    ]
+  }
+}
