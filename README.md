@@ -64,4 +64,5 @@ at the bottom of the window, with the reason.
 To turn it off: the switch in the menu-bar popover or in Settings (⌘,). To run
 once without it: `open build/Build/Products/Debug/Simanager.app --args -reapEnabled NO`.
 Settings also holds the idle period (15 min to 2 h), the action (Shut down or
-Delete) and Launch at login.
+Delete), Launch at login and Appearance: System (follows macOS light or dark),
+Light or Dark.
