@@ -9,6 +9,8 @@ import SimanagerCore
         return model
     }()
 
+    init() { Appearance.saved.apply() }
+
     var body: some Scene {
         Window("Simanager", id: "main") {
             SimTableView().environment(model)
