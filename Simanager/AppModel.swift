@@ -22,7 +22,9 @@ import SimanagerCore
     /// The last command a Claude session ran against each simulator, filled by history scans.
     private(set) var history: [String: HistoryHit] = [:]
     private(set) var historyScannedAt: [String: Date] = [:]
-    private(set) var isScanning = false
+    /// A count, not a flag: the reaper's scan and one asked for by hand can overlap.
+    private var activeScans = 0
+    var isScanning: Bool { activeScans > 0 }
     /// Newest first, capped at 100.
     private(set) var activity: [ActivityEntry] = (UserDefaults.standard.data(forKey: "activity"))
         .flatMap { try? JSONDecoder().decode([ActivityEntry].self, from: $0) } ?? []
@@ -37,6 +39,10 @@ import SimanagerCore
     private var clock = ReapClock()
     @ObservationIgnored private var isReaping = false
     @ObservationIgnored private var loggedScanFailure = false
+    /// A history scan greps a week of transcripts; one that keeps failing is not retried every refresh.
+    @ObservationIgnored private var scanBackoff = Backoff()
+    /// The newest probe, kept even while a confirmation freezes `snapshot`; actions are checked against this one.
+    @ObservationIgnored private var newest: Snapshot?
 
     @ObservationIgnored private var runningSessions: [String: String?] = [:]
     @ObservationIgnored private var configDirs: [URL] = []
@@ -89,6 +95,7 @@ import SimanagerCore
         }.value
         // Every snapshot feeds the idle clocks, incomplete ones included: that is what clears them.
         clock.observe(snap)
+        newest = snap
         runningSessions = running
         configDirs = dirs
         // While a confirmation is open the table is frozen, so the row under the pointer cannot change.
@@ -133,8 +140,8 @@ extension AppModel {
     /// `nil` = every row. False when the scan failed: history is then unknown, not empty.
     @discardableResult func scanHistory(for udids: [String]?) async -> Bool {
         let rows = (shown?.rows ?? []).filter { udids?.contains($0.id) ?? true }
-        isScanning = true
-        defer { isScanning = false }
+        activeScans += 1
+        defer { activeScans -= 1 }
         guard let hits = await HistoryScanner.scan(targets: rows.map { HistoryTarget(udid: $0.id, checkoutPath: $0.checkout?.path) },
                                                    running: runningSessions, configDirs: configDirs) else { return false }
         let now = Date()
@@ -157,18 +164,20 @@ extension AppModel {
     }
 
     private func run(_ action: SimAction, udid: String, automatic: Bool, reason: String?) async {
-        // Built only for a well-formed UDID that is booted in the most recent snapshot.
-        guard let snapshot, let arguments = simctlArguments(action, udid: udid, in: snapshot) else {
-            rowErrors[udid] = "no longer booted"
-            return
-        }
-        let name = snapshot.rows.first { $0.id == udid }?.device.name ?? udid
-        let result = await runCommand("/usr/bin/xcrun", arguments, timeout: 60)
-        let error: String? = switch result {
-        case nil: "simctl did not finish in 60 s"
-        case let r? where r.status != 0:
-            r.stderr.split(separator: "\n").last.map(String.init) ?? "simctl exited with status \(r.status)"
-        default: nil
+        let name = shown?.rows.first { $0.id == udid }?.device.name ?? udid
+        let error: String?
+        // Built only for a well-formed UDID that is booted in the newest probe, which is newer than the table
+        // while a confirmation holds it frozen.
+        if let newest, let arguments = simctlArguments(action, udid: udid, in: newest) {
+            error = switch await runCommand("/usr/bin/xcrun", arguments, timeout: 60) {
+            case nil: "simctl did not finish in 60 s"
+            case let r? where r.status != 0:
+                r.stderr.split(separator: "\n").last.map(String.init) ?? "simctl exited with status \(r.status)"
+            default: nil
+            }
+        } else {
+            // Logged below as well: the row has usually left the table, so a row error alone would never be seen.
+            error = newest?.complete == false ? "not done: a probe failed, so it could not be confirmed as booted" : "no longer booted"
         }
         rowErrors[udid] = error
         log(ActivityEntry(id: UUID(), time: Date(), simulator: name, action: action.title, automatic: automatic, reason: reason, error: error))
@@ -224,10 +233,11 @@ extension AppModel {
     private func reapIfDue() async {
         guard !isPaused, !isReaping else { return }
         let due = clock.due(pinned: pinned, settings: reapSettings, now: Date())
-        guard !due.isEmpty else { return }
+        guard !due.isEmpty, scanBackoff.ready(now: Date()) else { return }
         isReaping = true
         defer { isReaping = false }
         guard await scanHistory(for: due) else {
+            scanBackoff.failed(now: Date())
             // Unknown history is not "no history": nothing is reaped on a failed scan.
             if !loggedScanFailure {
                 log(ActivityEntry(id: UUID(), time: Date(), simulator: "Auto-reap", action: "Skipped", automatic: true,
@@ -237,6 +247,7 @@ extension AppModel {
             return
         }
         loggedScanFailure = false
+        scanBackoff.succeeded()
         for udid in due {
             // The scan and each earlier action took time. Ask again at the moment of acting: a pin, the off switch,
             // a new owner or a failed probe since the list was made each take the simulator off it.
