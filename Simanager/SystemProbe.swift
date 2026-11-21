@@ -9,10 +9,18 @@ struct AppRow: Identifiable, Hashable {
 }
 
 struct MachineStats {
+    let memoryTotal: UInt64
+    /// App, wired and compressed memory: what Activity Monitor calls Memory Used.
+    let memoryUsed: UInt64
+    /// macOS's own verdict on memory, not a threshold of ours.
+    let pressure: MemoryPressure
     let swapUsed: UInt64
     let swapTotal: UInt64
+    let thermal: ProcessInfo.ThermalState
     var swapFraction: Double { swapTotal == 0 ? 0 : Double(swapUsed) / Double(swapTotal) }
 }
+
+enum MemoryPressure { case normal, warning, critical }
 
 /// Everything that reads the machine. Parsing and deciding live in SimanagerCore.
 enum SystemProbe {
@@ -130,7 +138,22 @@ enum SystemProbe {
         var usage = xsw_usage()
         var size = MemoryLayout<xsw_usage>.size
         sysctlbyname("vm.swapusage", &usage, &size, nil, 0)
-        return MachineStats(swapUsed: usage.xsu_used, swapTotal: usage.xsu_total)
+
+        var vm = vm_statistics64()
+        var count = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.size / MemoryLayout<integer_t>.size)
+        _ = withUnsafeMutablePointer(to: &vm) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { host_statistics64(mach_host_self(), HOST_VM_INFO64, $0, &count) }
+        }
+        let appPages = UInt64(vm.internal_page_count) - min(UInt64(vm.purgeable_count), UInt64(vm.internal_page_count))
+        let used = (appPages + UInt64(vm.wire_count) + UInt64(vm.compressor_page_count)) * UInt64(getpagesize())
+
+        var level: Int32 = 1, levelSize = MemoryLayout<Int32>.size
+        sysctlbyname("kern.memorystatus_vm_pressure_level", &level, &levelSize, nil, 0)
+
+        return MachineStats(memoryTotal: ProcessInfo.processInfo.physicalMemory, memoryUsed: used,
+                            pressure: level >= 4 ? .critical : level >= 2 ? .warning : .normal,
+                            swapUsed: usage.xsu_used, swapTotal: usage.xsu_total,
+                            thermal: ProcessInfo.processInfo.thermalState)
     }
 
     static func simulatorApps() -> [AppRow] {
