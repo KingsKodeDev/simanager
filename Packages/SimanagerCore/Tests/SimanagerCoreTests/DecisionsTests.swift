@@ -69,3 +69,17 @@ let snapWithClone = Snapshot(rows: [row(cloneUDID, live: false, clone: true)], c
     #expect(simctlArguments(.delete, udid: B + " ; rm -rf ~", in: sn) == nil)
     #expect(simctlArguments(.delete, udid: cloneUDID, in: snapWithClone) == ["simctl", "--set", "testing", "delete", cloneUDID])
 }
+@Test func repeatedFailuresWaitLongerUpToACap() {
+    var b = Backoff(base: 30, cap: 100)
+    #expect(b.ready(now: t0))
+    b.failed(now: t0)
+    #expect(!b.ready(now: t0 + 29) && b.ready(now: t0 + 30))
+    b.failed(now: t0 + 30)
+    #expect(!b.ready(now: t0 + 89) && b.ready(now: t0 + 90))            // 60 s after the second failure
+    b.failed(now: t0 + 90)
+    #expect(!b.ready(now: t0 + 189) && b.ready(now: t0 + 190))          // 120 s capped to 100
+    b.succeeded()
+    #expect(b.ready(now: t0 + 190))
+    b.failed(now: t0 + 200)
+    #expect(b.ready(now: t0 + 230))                                     // back to the base wait
+}

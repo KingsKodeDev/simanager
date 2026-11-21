@@ -50,6 +50,22 @@ public struct ReapClock: Sendable {
     }
 }
 
+/// Spaces out retries of something that keeps failing: the wait doubles from `base` up to `cap`.
+public struct Backoff: Sendable {
+    private let base: TimeInterval, cap: TimeInterval
+    private var failures = 0
+    private var retryAt: Date?
+
+    public init(base: TimeInterval = 30, cap: TimeInterval = 600) { self.base = base; self.cap = cap }
+
+    public func ready(now: Date) -> Bool { retryAt.map { now >= $0 } ?? true }
+    public mutating func failed(now: Date) {
+        retryAt = now.addingTimeInterval(min(cap, base * pow(2, Double(failures))))
+        failures += 1
+    }
+    public mutating func succeeded() { failures = 0; retryAt = nil }
+}
+
 public enum ReapVerdict: Equatable, Sendable { case reap; case wait(resetTo: Date) }
 
 /// The guard for a session working in another folder command by command: its recent command defers the reap.
