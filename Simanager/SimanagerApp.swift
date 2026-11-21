@@ -16,7 +16,7 @@ import SimanagerCore
             SimTableView().environment(model)
         }
         // Opens as wide as the columns need (never wider than the screen), so nothing scrolls sideways or needs widening.
-        .defaultSize(width: min(SimTableView.contentWidth, Double(NSScreen.main?.visibleFrame.width ?? 4000)), height: 640)
+        .defaultSize(width: min(SimTableView.contentWidth, Double(NSScreen.main?.visibleFrame.width ?? 4000)), height: 900)
 
         // Closing the window leaves the app in the menu bar, which is what keeps auto-reaping alive.
         MenuBarExtra {

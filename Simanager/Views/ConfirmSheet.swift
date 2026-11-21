@@ -1,44 +1,6 @@
 import SwiftUI
 import SimanagerCore
 
-/// Evidence for one simulator: live lines, then the last command from history when a scan has found one.
-struct EvidenceList: View {
-    // Passed in, not read from the environment: Table evaluates cells outside the window's environment
-    // when rows come and go, and a missing Observable there is a crash.
-    let model: AppModel
-    let row: SimRow
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            ForEach(evidenceLines(row.live), id: \.self) { Label($0, systemImage: "circle.fill").labelStyle(DotLabel(color: .green)) }
-            if !row.hasLiveOwner {
-                // After a failed probe "no evidence" proves nothing, so it is not called "no owner".
-                Label(model.isStale ? "Owner unknown — a probe failed"
-                                    : "No live owner" + (row.footprint == nil ? " · no process (stale boot state)" : "") + reapNote,
-                      systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-            }
-            if let hit = model.history[row.id] {
-                Text(historyLine(hit)).foregroundStyle(.secondary).help(hit.command)
-            }
-        }
-    }
-}
-
-extension EvidenceList {
-    /// "reaps in N min" while the idle clock runs, "kept" when pinned, nothing when auto-reap is off.
-    var reapNote: String {
-        guard model.reapSettings.enabled else { return "" }
-        if model.pinned.contains(row.id) { return " · kept" }
-        guard let seconds = model.reapsIn(row.id) else { return "" }
-        return seconds <= 0 ? " · reaping" : " · reaps in \(Int((seconds / 60).rounded(.up))) min"
-    }
-}
-
-func historyLine(_ hit: HistoryHit) -> String {
-    let when = hit.time.formatted(.dateTime.day().month(.abbreviated).hour().minute())
-    return "last command \(when), session \"\(hit.sessionName ?? String(hit.sessionID.prefix(8)))\" (\(hit.sessionRunning ? "running" : "ended"))"
-}
-
 struct ConfirmSheet: View {
     @Environment(AppModel.self) private var model
     let request: ConfirmRequest
@@ -50,34 +12,53 @@ struct ConfirmSheet: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("\(request.action.title) \(row.device.name)?").font(.headline)
-            Text("\(row.device.runtime) · \(Format.memory(row.footprint))\(row.device.isTestClone ? " · test clone" : "")").foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(request.action == .delete ? "Delete this simulator?" : "Shut down this simulator?").font(.title3.bold())
+                Text(row.device.name).fontWeight(.semibold)
+                Text("\(row.device.runtime) · holding \(Format.memory(row.footprint)) · up \(Format.uptime(row.uptime))\(row.device.isTestClone ? " · test clone" : "")")
+                    .font(.callout).foregroundStyle(.secondary)
+            }
 
-            EvidenceList(model: model, row: row)
-            if model.isScanning { ProgressView("Checking what recently used it…").controlSize(.small) }
-            if scanFailed { Text("History could not be scanned; recent use by a session elsewhere is unknown.").foregroundStyle(.orange) }
+            // The evidence is shown before the action is offered.
+            VStack(alignment: .leading, spacing: 0) {
+                fact("What is using it") { StatusCell(model: model, row: row) }
+                Divider()
+                fact("Last Claude command") {
+                    if model.isScanning {
+                        ProgressView("Checking what recently used it…").controlSize(.small)
+                    } else if scanFailed {
+                        Text("Could not be checked; recent use by a session elsewhere is unknown.").foregroundStyle(.orange)
+                    } else {
+                        LastCommandCell(model: model, row: row)
+                    }
+                }
+            }.panel(radius: 10)
 
             if let first = directLabels.first {
                 Text("In use right now by \(first).").foregroundStyle(.red).bold()
             } else if !row.hasLiveOwner, !model.isStale {
-                Text("No live owner found. A session working from another folder may still be using it.")
+                Text("A session working from another folder could still be using it; that cannot be seen from here.").foregroundStyle(.secondary)
             }
             StaleNotice(model: model)
             if request.action == .shutdown, row.device.runtime == "iOS 26.5" {
                 Text("iOS 26.5 may not boot cleanly again after a shut down. Delete instead.").foregroundStyle(.orange)
             }
             Text(request.action == .delete ? "Deletes the device, the app installed on it and its data."
-                                           : "Nothing on disk is lost. Whatever is running in it stops; the next boot is a cold boot.")
-                .foregroundStyle(.secondary)
+                                           : "Nothing on disk is lost. Whatever is running in it stops, and the next boot is a cold boot.")
 
+            Divider()
             HStack {
                 Spacer()
                 Button("Cancel") { model.confirmRequest = nil }.keyboardShortcut(.defaultAction)
-                Button(request.action.title, role: .destructive) {
+                Button(role: .destructive) {
                     model.confirmRequest = nil
                     Task { await model.perform(request.action, udid: row.id, automatic: false, reason: nil) }
-                }.disabled(model.isScanning)        // the evidence is shown before the action is offered
+                } label: {
+                    Label(request.action.title, systemImage: request.action.icon).labelStyle(.titleAndIcon)
+                }
+                .buttonStyle(.borderedProminent).tint(.red)
+                .disabled(model.isScanning)
             }
         }
         .padding(20).frame(width: 560)
@@ -87,15 +68,11 @@ struct ConfirmSheet: View {
             }
         }
     }
-}
 
-/// Shown in confirmations when the newest refresh failed: what is listed is old, or incomplete.
-struct StaleNotice: View {
-    let model: AppModel
-    var body: some View {
-        if model.isStale {
-            Text("The last refresh failed (\(model.failedProbes.joined(separator: ", "))). What is shown may be out of date, and nothing here shows a simulator is unused.")
-                .foregroundStyle(.red)
-        }
+    private func fact(_ name: String, @ViewBuilder _ content: () -> some View) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(name).font(.callout.weight(.semibold)).foregroundStyle(.secondary).frame(width: 150, alignment: .leading)
+            content().frame(maxWidth: .infinity, alignment: .leading)
+        }.padding(10)
     }
 }

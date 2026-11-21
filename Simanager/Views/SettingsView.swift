@@ -21,6 +21,7 @@ enum Appearance: String, CaseIterable, Identifiable {
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @AppStorage(Appearance.key) private var appearance = Appearance.system
+    @AppStorage(TemperatureUnit.key) private var temperatureUnit = TemperatureUnit.celsius
 
     var body: some View {
         Form {
@@ -29,8 +30,12 @@ struct SettingsView: View {
             }
             .pickerStyle(.segmented)
             .onChange(of: appearance) { _, new in new.apply() }
+            Picker("Temperature", selection: $temperatureUnit) {
+                ForEach(TemperatureUnit.allCases) { Text($0.symbol).tag($0) }
+            }
+            .pickerStyle(.segmented)
 
-            Toggle("Shut down or delete simulators nothing is using",
+            Toggle("Auto clean-up: shut down or delete simulators nothing is using",
                    isOn: Binding(get: { model.reapSettings.enabled }, set: { on in model.updateReapSettings { $0.enabled = on } }))
             Picker("After", selection: Binding(get: { model.reapSettings.idlePeriod }, set: { v in model.updateReapSettings { $0.idlePeriod = v } })) {
                 ForEach(ReapSettings.idlePeriods, id: \.self) { period in
@@ -40,7 +45,7 @@ struct SettingsView: View {
             Picker("Action", selection: Binding(get: { model.reapSettings.action }, set: { v in model.updateReapSettings { $0.action = v } })) {
                 ForEach(SimAction.allCases) { Text($0.title).tag($0) }
             }.disabled(!model.reapSettings.enabled)
-            Text("A simulator is reaped when it is not pinned, no live session has been tied to it for the whole period, and no running Claude session ran a command against it in that time. Works only while Simanager is running.")
+            Text("A simulator is cleaned up when it is not kept, no live session has been tied to it for the whole period, and no running Claude session ran a command against it in that time. Works only while Simanager is running.")
                 .font(.callout).foregroundStyle(.secondary)
 
             Toggle("Launch at login", isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))

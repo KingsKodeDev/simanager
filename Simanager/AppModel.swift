@@ -8,15 +8,17 @@ import SimanagerCore
     /// The last snapshot every probe succeeded for; shown while a newer one is incomplete.
     var lastComplete: Snapshot?
     var apps: [AppRow] = []
+    /// Memory, swap, temperature and fans: read every second by their own loop.
     var stats: MachineStats?
+    var sensors: SensorReading?
     var lanesError: String?
     /// True while a confirmation is open, so the row under the pointer cannot change.
-    var isPaused: Bool { confirmRequest != nil || bulkAction != nil || quitRequest != nil }
+    var isPaused: Bool { confirmRequest != nil || cleanUpOpen || quitRequest != nil }
 
     // MARK: actions
 
     var confirmRequest: ConfirmRequest?
-    var bulkAction: SimAction?
+    var cleanUpOpen = false
     var quitRequest: AppRow?
     private(set) var pinned = Set(UserDefaults.standard.stringArray(forKey: "pinnedUDIDs") ?? [])
     /// The last command a Claude session ran against each simulator, filled by history scans.
@@ -47,6 +49,8 @@ import SimanagerCore
     @ObservationIgnored private var runningSessions: [String: String?] = [:]
     @ObservationIgnored private var configDirs: [URL] = []
     @ObservationIgnored private var loop: Task<Void, Never>?
+    @ObservationIgnored private var machineLoop: Task<Void, Never>?
+    @ObservationIgnored private let sensorReader = Sensors()
     @ObservationIgnored private var napGuard: NSObjectProtocol?
 
     /// What the table shows: the newest snapshot, or the last complete one while a probe is failing.
@@ -76,6 +80,19 @@ import SimanagerCore
                 try? await Task.sleep(for: .seconds(5))
             }
         }
+        // A loop of its own: these reads are cheap enough for every second, unlike the probe above, which runs
+        // simctl, ps, lsof and git.
+        machineLoop = Task { [weak self] in
+            while !Task.isCancelled {
+                await self?.refreshMachine()
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
+    }
+
+    private func refreshMachine() async {
+        stats = SystemProbe.stats()
+        sensors = await sensorReader.read()
     }
 
     func refreshNow() async {
@@ -103,7 +120,6 @@ import SimanagerCore
         snapshot = snap
         failedProbes = failed
         if snap.complete { lastComplete = snap }
-        stats = SystemProbe.stats()
         apps = SystemProbe.simulatorApps()
         Task { await reapIfDue() }      // not awaited: a history scan must not hold up the next refresh
     }
@@ -228,6 +244,16 @@ extension AppModel {
     func reapsIn(_ udid: String) -> TimeInterval? {
         clock.reapsIn(udid, pinned: pinned, settings: reapSettings, now: Date())
     }
+
+    /// What auto clean-up will do with this simulator, to follow "Auto clean-up" or "Unused"; `nil` when it has no plan for it.
+    func cleanUpNote(_ udid: String) -> String? {
+        guard let seconds = reapsIn(udid) else { return nil }
+        let verb = reapSettings.action == .shutdown ? "shuts it down" : "deletes it"
+        return seconds <= 0 ? "\(verb) now" : "\(verb) in \(Int((seconds / 60).rounded(.up))) min"
+    }
+
+    /// What Clean up takes unless told otherwise: simulators with no live owner that are not kept.
+    var unused: [SimRow] { bulkTargets(rows: shown?.rows ?? [], pinned: pinned, includeInUse: false).targets }
 
     /// Reaps what has been ownerless for the idle period, after a history scan confirms no running session used it.
     private func reapIfDue() async {
